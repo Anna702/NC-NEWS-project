@@ -10,6 +10,18 @@ afterAll(() => {
   return connection.end();
 });
 
+describe("/api/incorrect_path", () => {
+  test("404: GET responds with correct message for route that does not exist", () => {
+    return request(app)
+      .get("/api/incorrect_path")
+      .expect(404)
+      .then(({ body }) => {
+        expect(typeof body).toBe("object");
+        expect(body.msg).toBe("Path not found");
+      });
+  });
+});
+
 describe("/api/topics", () => {
   test("200: GET responds with an array of topic objects", () => {
     return request(app)
@@ -23,15 +35,6 @@ describe("/api/topics", () => {
           expect(topic).toHaveProperty("slug", expect.any(String));
           expect(topic).toHaveProperty("description", expect.any(String));
         });
-      });
-  });
-  test("404: GET responds with correct message for route that does not exist", () => {
-    return request(app)
-      .get("/api/toppings")
-      .expect(404)
-      .then(({ body }) => {
-        expect(typeof body).toBe("object");
-        expect(body.msg).toBe("Path not found");
       });
   });
 });

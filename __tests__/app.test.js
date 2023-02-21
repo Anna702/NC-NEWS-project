@@ -47,7 +47,7 @@ describe("/api/articles", () => {
       .then(({ body }) => {
         expect(typeof body).toBe("object");
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length).toBeGreaterThan(0);
+        expect(body.articles.length).toBe(12);
         body.articles.forEach((article) => {
           expect(article).toHaveProperty("author", expect.any(String));
           expect(article).toHaveProperty("title", expect.any(String));
@@ -58,6 +58,19 @@ describe("/api/articles", () => {
           expect(article).toHaveProperty("article_img_url", expect.any(String));
           expect(article).toHaveProperty("comment_count", expect.any(Number));
         });
+      });
+  });
+  test("200, GET, the default order of the data is descending order of the created_at column", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        const articlesCopy = [...articles];
+        const sortedArticles = articlesCopy.sort((articteA, articleB) => {
+          return articleB.created_at - articteA.created_at;
+        });
+        expect(articles).toEqual(sortedArticles);
       });
   });
 });

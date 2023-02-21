@@ -38,3 +38,39 @@ describe("/api/topics", () => {
       });
   });
 });
+
+describe("/api/articles", () => {
+  test("200: GET array of articles with the total count of all the comments", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(typeof body).toBe("object");
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(12);
+        body.articles.forEach((article) => {
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(Number));
+        });
+      });
+  });
+  test("200, GET, the default order of the data is descending order of the created_at column", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        const articlesCopy = [...articles];
+        const sortedArticles = articlesCopy.sort((articteA, articleB) => {
+          return articleB.created_at - articteA.created_at;
+        });
+        expect(articles).toEqual(sortedArticles);
+      });
+  });
+});

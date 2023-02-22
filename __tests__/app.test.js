@@ -74,3 +74,40 @@ describe("/api/articles", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id", () => {
+  test("200: GET responds with a single article object", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          author: "icellusedkars",
+          title: "Eight pug gifs that remind me of mitch",
+          article_id: 3,
+          body: "some gifs",
+          topic: "mitch",
+          created_at: "2020-11-03T09:12:00.000Z",
+          votes: 0,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("400: GET invalid article id", () => {
+    return request(app)
+      .get("/api/articles/invali_article_ID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article id");
+      });
+  });
+  test.only("404: GET valid but non-existent article id", () => {
+    return request(app)
+      .get("/api/articles/112229")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article with this id does not exist");
+      });
+  });
+});

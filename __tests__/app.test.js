@@ -277,3 +277,23 @@ describe("POST: /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("PATCH: /api/articles/:article_id", () => {
+  test("200: PATCH responds with the updated article", () => {
+    const incVotes = {
+      inc_votes: 1,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(incVotes)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(
+          expect.objectContaining({
+            article_id: 1,
+            votes: 101,
+          })
+        );
+      });
+  });
+});

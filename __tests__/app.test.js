@@ -112,3 +112,41 @@ describe("/api/articles/:article_id", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  test("200: GET an array of comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body)).toBe(true);
+        expect(body.length).toBe(2);
+        body.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("article_id", 9);
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+        });
+      });
+  });
+
+  test("404: GET status code 404 if no comments are found", () => {
+    return request(app)
+      .get("/api/articles/92/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("no comments found");
+      });
+  });
+
+  test("400: GET responds with right message when given invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/invalidID/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article id");
+      });
+  });
+});

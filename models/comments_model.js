@@ -27,14 +27,14 @@ exports.addComments = (article_id, newComment) => {
   if (!username || !body) {
     return Promise.reject({
       status: 400,
-      msg: "Bad request",
+      msg: "Bad request: username and body can not be empty",
     });
   }
   return db
     .query(
       `
 INSERT INTO comments 
-(article_id, username, body)
+(article_id, author, body)
 VALUES ($1, $2, $3)
 RETURNING *;`,
       [article_id, username, body]

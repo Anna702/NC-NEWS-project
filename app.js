@@ -12,7 +12,10 @@ const {
 const {
   handle404BadPath,
   handleCustomErrors,
+  handle500Error,
 } = require("./controllers/errorHandlingControllers");
+
+app.use(express.json());
 
 app.get("/api/topics", getTopics);
 
@@ -26,4 +29,5 @@ app.post("/api/articles/:article_id/comments", postComments);
 
 app.all("*", handle404BadPath);
 app.use(handleCustomErrors);
+app.use(handle500Error);
 module.exports = app;

@@ -74,3 +74,41 @@ describe("/api/articles", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id", () => {
+  test("200: GET responds with a single article object", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.article_id).toEqual(3);
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          })
+        );
+      });
+  });
+  test("400: GET invalid article id", () => {
+    return request(app)
+      .get("/api/articles/invali_article_ID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article id");
+      });
+  });
+  test("404: GET valid but non-existent article id", () => {
+    return request(app)
+      .get("/api/articles/112229")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article with this id does not exist");
+      });
+  });
+});

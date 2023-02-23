@@ -1,4 +1,8 @@
 const db = require("../db/connection");
+const {
+  fetchCommentsByArticle,
+  fetchArticleById,
+} = require("./articles_model");
 
 exports.fetchCommentsByArticle = (article_id) => {
   let queryString = `SELECT *
@@ -9,18 +13,10 @@ exports.fetchCommentsByArticle = (article_id) => {
     queryParams.push(article_id);
   }
   queryString += " ORDER BY created_at DESC";
-  return db
-    .query(queryString, queryParams)
-    .then((result) => {
-      if (result.rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "no comments found",
-        });
-      }
+
+  return fetchArticleById(article_id).then(() => {
+    return db.query(queryString, queryParams).then((result) => {
       return result.rows;
-    })
-    .then((rows) => {
-      return rows;
     });
+  });
 };

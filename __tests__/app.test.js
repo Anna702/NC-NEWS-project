@@ -132,12 +132,12 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 
-  test("404: GET status code 404 if no comments are found", () => {
+  test("404: GET status code 404 if article doesn't exist", () => {
     return request(app)
-      .get("/api/articles/92/comments")
+      .get("/api/articles/99999/comments")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("no comments found");
+        expect(body.msg).toBe("article with this id does not exist");
       });
   });
 
@@ -147,6 +147,30 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid article id");
+      });
+  });
+
+  test("200:GET the comments are sorted by created_at", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const comments = body;
+        const commentsCopy = [...comments];
+        const sortedComments = commentsCopy.sort((commentA, commentB) => {
+          return commentB.created_at - commentA.created_at;
+        });
+        expect(comments).toEqual(sortedComments);
+      });
+  });
+
+  test("200: GET return 200 if it is a valid article_id and no comments found", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(0);
+        expect(body).toEqual([]);
       });
   });
 });

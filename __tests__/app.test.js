@@ -81,11 +81,11 @@ describe("/api/articles/:article_id", () => {
       .get("/api/articles/3")
       .expect(200)
       .then(({ body }) => {
+        expect(body.article.article_id).toEqual(3);
         expect(body.article).toEqual(
           expect.objectContaining({
             author: expect.any(String),
             title: expect.any(String),
-            article_id: expect.any(Number),
             body: expect.any(String),
             topic: expect.any(String),
             created_at: expect.any(String),

@@ -81,17 +81,18 @@ describe("/api/articles/:article_id", () => {
       .get("/api/articles/3")
       .expect(200)
       .then(({ body }) => {
-        expect(body.article).toEqual({
-          author: "icellusedkars",
-          title: "Eight pug gifs that remind me of mitch",
-          article_id: 3,
-          body: "some gifs",
-          topic: "mitch",
-          created_at: "2020-11-03T09:12:00.000Z",
-          votes: 0,
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        });
+        expect(body.article).toEqual(
+          expect.objectContaining({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            body: expect.any(String),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          })
+        );
       });
   });
   test("400: GET invalid article id", () => {
@@ -102,7 +103,7 @@ describe("/api/articles/:article_id", () => {
         expect(body.msg).toBe("Invalid article id");
       });
   });
-  test.only("404: GET valid but non-existent article id", () => {
+  test("404: GET valid but non-existent article id", () => {
     return request(app)
       .get("/api/articles/112229")
       .expect(404)

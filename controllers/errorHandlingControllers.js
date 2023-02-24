@@ -22,6 +22,6 @@ exports.handleCustomErrors = (err, req, res, next) => {
   }
 };
 
-exports.handle500Error = (err, req, res, next) => {
+exports.handle500Error = (req, res, next) => {
   res.status(500).send({ msg: "Something has gone wrong on the server" });
 };

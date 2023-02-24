@@ -4,6 +4,7 @@ const { getTopics } = require("./controllers/topics_controller");
 const {
   getArticles,
   getArticleById,
+  patchArticleVotes,
 } = require("./controllers/articles_controller");
 const {
   getCommentsByArticle,
@@ -26,6 +27,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticle);
 
 app.post("/api/articles/:article_id/comments", postComments);
+
+app.patch("/api/articles/:article_id", patchArticleVotes);
 
 app.all("*", handle404BadPath);
 app.use(handleCustomErrors);

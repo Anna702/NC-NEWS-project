@@ -48,8 +48,8 @@ exports.updatedArticleVotes = (article_id, inc_votes) => {
   return this.fetchArticleById(article_id).then((article) => {
     if (inc_votes + article.votes < 0) {
       return Promise.reject({
-        status: 400,
-        msg: "Bad request: article.votes can not be a negative number",
+        status: 404,
+        msg: "article.votes can not be a negative number",
       });
     }
     return db

@@ -279,6 +279,29 @@ describe("POST: /api/articles/:article_id/comments", () => {
 });
 
 describe("PATCH: /api/articles/:article_id", () => {
+  test("200: PATCH responds with the correct keys", () => {
+    const incVotes = {
+      inc_votes: 1,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(incVotes)
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: expect.any(Number),
+          article_img_url: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          title: expect.any(String),
+          topic: expect.any(String),
+          votes: expect.any(Number),
+        });
+      });
+  });
+
   test("200: PATCH responds with the updated article", () => {
     const incVotes = {
       inc_votes: 1,
@@ -288,12 +311,18 @@ describe("PATCH: /api/articles/:article_id", () => {
       .send(incVotes)
       .expect(200)
       .then(({ body }) => {
-        expect(body).toEqual(
-          expect.objectContaining({
-            article_id: 1,
-            votes: 101,
-          })
-        );
+        const { article } = body;
+        expect(article).toEqual({
+          article_id: 1,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          votes: 101,
+        });
       });
   });
 
@@ -307,14 +336,21 @@ describe("PATCH: /api/articles/:article_id", () => {
       .send(incVotes)
       .expect(200)
       .then(({ body }) => {
-        expect(body).toEqual(
-          expect.objectContaining({
-            article_id: 1,
-            votes: 101,
-          })
-        );
+        const { article } = body;
+        expect(article).toEqual({
+          article_id: 1,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          votes: 101,
+        });
       });
   });
+
   test("400: PATCH when inc_votes is not a number", () => {
     const incVotes = {
       inc_votes: "abs",
@@ -339,12 +375,18 @@ describe("PATCH: /api/articles/:article_id", () => {
       .send(incVotes)
       .expect(200)
       .then(({ body }) => {
-        expect(body).toEqual(
-          expect.objectContaining({
-            article_id: 1,
-            votes: 0,
-          })
-        );
+        const { article } = body;
+        expect(article).toEqual({
+          article_id: 1,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          votes: 0,
+        });
       });
   });
 
@@ -361,18 +403,16 @@ describe("PATCH: /api/articles/:article_id", () => {
       });
   });
 
-  test("400: PATCH responds with right message when article.votes would become a negative number", () => {
+  test("404: PATCH responds with right message when article.votes would become a negative number", () => {
     const incVotes = {
       inc_votes: -1000,
     };
     return request(app)
       .patch("/api/articles/1")
       .send(incVotes)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe(
-          "Bad request: article.votes can not be a negative number"
-        );
+        expect(body.msg).toBe("article.votes can not be a negative number");
       });
   });
   test("404: PATCH responds with right message when article doesn't exist", () => {

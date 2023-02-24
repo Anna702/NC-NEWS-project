@@ -296,4 +296,95 @@ describe("PATCH: /api/articles/:article_id", () => {
         );
       });
   });
+
+  test("200: PATCH responds with the updated article if extra properties are provided on the request body", () => {
+    const incVotes = {
+      inc_votes: 1,
+      bodytext: "Hello world",
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(incVotes)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(
+          expect.objectContaining({
+            article_id: 1,
+            votes: 101,
+          })
+        );
+      });
+  });
+  test("400: PATCH when inc_votes is not a number", () => {
+    const incVotes = {
+      inc_votes: "abs",
+    };
+    return request(app)
+      .patch("/api/articles/2")
+      .send(incVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Bad request: inc_votes is required and must be a number"
+        );
+      });
+  });
+
+  test("200: PATCH responds with the updated article if inc_votes is a negative number", () => {
+    const incVotes = {
+      inc_votes: -100,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(incVotes)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(
+          expect.objectContaining({
+            article_id: 1,
+            votes: 0,
+          })
+        );
+      });
+  });
+
+  test("400: PATCH responds with right message when inc_votes is missing", () => {
+    const incVotes = {};
+    return request(app)
+      .patch("/api/articles/2")
+      .send(incVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Bad request: inc_votes is required and must be a number"
+        );
+      });
+  });
+
+  test("400: PATCH responds with right message when article.votes would become a negative number", () => {
+    const incVotes = {
+      inc_votes: -1000,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(incVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe(
+          "Bad request: article.votes can not be a negative number"
+        );
+      });
+  });
+  test("404: PATCH responds with right message when article doesn't exist", () => {
+    const incVotes = {
+      inc_votes: -10,
+    };
+    return request(app)
+      .patch("/api/articles/9999")
+      .send(incVotes)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article with this id does not exist");
+      });
+  });
 });

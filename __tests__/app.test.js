@@ -199,6 +199,31 @@ describe("POST: /api/articles/:article_id/comments", () => {
         );
       });
   });
+  test("201: POST responds with the posted comment if extra properties are provided on the request body", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Interesting point of view, but I haven't read it",
+      xxx: "kjkjk",
+    };
+    return request(app)
+      .post("/api/articles/6/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            article_id: 6,
+            author: newComment.username,
+            body: newComment.body,
+            created_at: expect.any(String),
+            votes: 0,
+          })
+        );
+      });
+  });
+
   test("400: POST responds with right message when username or body are empty", () => {
     return request(app)
       .post("/api/articles/6/comments")
@@ -210,7 +235,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: POST responds with right message when article does not exist", () => {
+  test("404: POST responds with right message when article does not exist", () => {
     const newComment = {
       username: "butter_bridge",
       body: "Interesting point of view, but I haven't read it",
@@ -218,13 +243,13 @@ describe("POST: /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/9999/comments")
       .send(newComment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request: this article does not exist");
       });
   });
 
-  test("400: POST responds with right message when user does not exist", () => {
+  test("404: POST responds with right message when user does not exist", () => {
     const newComment = {
       username: "london_bridge",
       body: "Interesting point of view, but I haven't read it",
@@ -232,7 +257,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/6/comments")
       .send(newComment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request: this user does not exist");
       });

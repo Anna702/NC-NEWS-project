@@ -11,11 +11,11 @@ exports.handleCustomErrors = (err, req, res, next) => {
     switch (err.constraint) {
       case "comments_article_id_fkey":
         res
-          .status(400)
+          .status(404)
           .send({ msg: "Bad request: this article does not exist" });
         break;
       case "comments_author_fkey":
-        res.status(400).send({ msg: "Bad request: this user does not exist" });
+        res.status(404).send({ msg: "Bad request: this user does not exist" });
     }
   } else {
     next(err);

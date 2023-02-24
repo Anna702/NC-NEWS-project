@@ -20,3 +20,26 @@ exports.fetchCommentsByArticle = (article_id) => {
     });
   });
 };
+
+exports.addComments = (article_id, newComment) => {
+  const { username, body } = newComment;
+
+  if (!username || !body) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request: username and body can not be empty",
+    });
+  }
+  return db
+    .query(
+      `
+INSERT INTO comments 
+(article_id, author, body)
+VALUES ($1, $2, $3)
+RETURNING *;`,
+      [article_id, username, body]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};

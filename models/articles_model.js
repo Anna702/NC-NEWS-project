@@ -1,22 +1,26 @@
 const db = require("../db/connection");
 
-exports.fetchArticles = () => {
-  return db
-    .query(
-      `
-          SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,  
-          COUNT(comments.comment_id)::INT
-          AS comment_count 
-          FROM articles
-          LEFT JOIN comments
-          ON articles.article_id=comments.article_id
-          GROUP BY articles.article_id
-          ORDER BY articles.created_at desc;
-      `
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+exports.fetchArticles = (topic) => {
+  let queryString = `
+  SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,  
+  COUNT(comments.comment_id)::INT
+  AS comment_count 
+  FROM articles
+  LEFT JOIN comments
+  ON articles.article_id=comments.article_id
+  
+  `;
+  const queryParams = [];
+  if (topic !== undefined) {
+    queryString += ` WHERE topic = $1`;
+    queryParams.push(topic);
+  }
+  queryString += ` GROUP BY articles.article_id
+      ORDER BY articles.created_at desc`;
+
+  return db.query(queryString, queryParams).then(({ rows }) => {
+    return rows;
+  });
 };
 
 exports.fetchArticleById = (article_id) => {

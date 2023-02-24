@@ -446,3 +446,18 @@ describe("/api/users", () => {
       });
   });
 });
+
+describe("GET /api/articles (queries)", () => {
+  test.only("200: accepts a topic querie", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(11);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("topic", "mitch");
+        });
+      });
+  });
+});

@@ -112,3 +112,65 @@ describe("/api/articles/:article_id", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  test("200: GET an array of comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body)).toBe(true);
+        expect(body.length).toBe(2);
+        body.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("article_id", 9);
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+        });
+      });
+  });
+
+  test("404: GET status code 404 if article doesn't exist", () => {
+    return request(app)
+      .get("/api/articles/99999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article with this id does not exist");
+      });
+  });
+
+  test("400: GET responds with right message when given invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/invalidID/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article id");
+      });
+  });
+
+  test("200:GET the comments are sorted by created_at", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const comments = body;
+        const commentsCopy = [...comments];
+        const sortedComments = commentsCopy.sort((commentA, commentB) => {
+          return commentB.created_at - commentA.created_at;
+        });
+        expect(comments).toEqual(sortedComments);
+      });
+  });
+
+  test("200: GET return 200 if it is a valid article_id and no comments found", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.length).toBe(0);
+        expect(body).toEqual([]);
+      });
+  });
+});

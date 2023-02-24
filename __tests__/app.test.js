@@ -262,4 +262,18 @@ describe("POST: /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad request: this user does not exist");
       });
   });
+
+  test("400: POST invalid article id", () => {
+    const newComment = {
+      username: "london_bridge",
+      body: "Interesting point of view, but I haven't read it",
+    };
+    return request(app)
+      .post("/api/articles/invali_article_ID/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article id");
+      });
+  });
 });

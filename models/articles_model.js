@@ -8,7 +8,6 @@ exports.fetchArticles = (topic) => {
   FROM articles
   LEFT JOIN comments
   ON articles.article_id=comments.article_id
-  
   `;
   const queryParams = [];
   if (topic !== undefined) {

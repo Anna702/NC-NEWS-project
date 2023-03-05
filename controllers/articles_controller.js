@@ -2,7 +2,6 @@ const {
   fetchArticles,
   fetchArticleById,
   updatedArticleVotes,
-  selectArticles,
 } = require("../models/articles_model");
 
 exports.getArticles = (req, res, next) => {

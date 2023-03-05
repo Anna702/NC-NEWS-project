@@ -1,5 +1,7 @@
 const db = require("../db/connection");
 
+const { fetchTopicBySlug } = require("./topics_model");
+
 exports.fetchArticles = (topic) => {
   let queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,  
@@ -19,9 +21,13 @@ exports.fetchArticles = (topic) => {
 
   return db.query(queryString, queryParams).then(({ rows }) => {
     if (!!topic && rows.length === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: "no articles for this topic found",
+      // no results has been found for a given topic.
+      // check if such topic exists at all
+      return fetchTopicBySlug(topic).then(() => {
+        return Promise.reject({
+          status: 404,
+          msg: "no articles for this topic found",
+        });
       });
     }
 

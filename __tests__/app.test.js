@@ -448,19 +448,6 @@ describe("/api/users", () => {
 });
 
 describe("GET /api/articles (queries)", () => {
-  test("200: accepts a topic querie", () => {
-    return request(app)
-      .get("/api/articles?topic=mitch")
-      .expect(200)
-      .then(({ body }) => {
-        const { articles } = body;
-        expect(articles).toHaveLength(11);
-        articles.forEach((article) => {
-          expect(article).toHaveProperty("topic", "mitch");
-        });
-      });
-  });
-
   test("200: accepts a topic query", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
@@ -474,7 +461,7 @@ describe("GET /api/articles (queries)", () => {
       });
   });
 
-  test("200: GET responds with array of articles objects when accepts a topic query", () => {
+  test("200: GET responds with array of articles objects when accepts a valid topic query", () => {
     return request(app)
       .get("/api/articles?topic=cats")
       .expect(200)
@@ -493,21 +480,36 @@ describe("GET /api/articles (queries)", () => {
       });
   });
 
-  test.only("404: GET responds with a valid message when topic is not in the database", () => {
-    return request(app)
-      .get("/api/articles?topic=notindatabase")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("this topic does not exist");
-      });
-  });
-
-  test.only("404: GET responds when topic exists in the database, but does not have any articles associated with it", () => {
+  test("404: GET responds with correct message when topic exists in the database, but does not have any articles associated with it", () => {
     return request(app)
       .get("/api/articles?topic=paper")
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("no articles for this topic found");
+      });
+  });
+
+  test("404: GET responds when topic does not exists", () => {
+    return request(app)
+      .get("/api/articles?topic=DOESNTEXIST")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("topic with this slug does not exist");
+      });
+  });
+
+  test("200: accepts sort_by query of articles", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body);
+        const articles = body.articles;
+        const articlesCopy = [...articles];
+        const sortedArticles = articlesCopy.sort((articleA, articleB) => {
+          return articleB.created_at - articleA.created_at;
+        });
+        expect(articles).toEqual(sortedArticles);
       });
   });
 });

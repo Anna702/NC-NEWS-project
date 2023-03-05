@@ -18,6 +18,13 @@ exports.fetchArticles = (topic) => {
       ORDER BY articles.created_at desc`;
 
   return db.query(queryString, queryParams).then(({ rows }) => {
+    if (!!topic && rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "no articles for this topic found",
+      });
+    }
+
     return rows;
   });
 };

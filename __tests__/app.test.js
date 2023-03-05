@@ -448,7 +448,7 @@ describe("/api/users", () => {
 });
 
 describe("GET /api/articles (queries)", () => {
-  test.only("200: accepts a topic querie", () => {
+  test("200: accepts a topic querie", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .expect(200)
@@ -461,7 +461,7 @@ describe("GET /api/articles (queries)", () => {
       });
   });
 
-  test.only("200: accepts a topic query", () => {
+  test("200: accepts a topic query", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .expect(200)
@@ -471,6 +471,43 @@ describe("GET /api/articles (queries)", () => {
         articles.forEach((article) => {
           expect(article).toHaveProperty("topic", "mitch");
         });
+      });
+  });
+
+  test("200: GET responds with array of articles objects when accepts a topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(1);
+        body.articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+        });
+      });
+  });
+
+  test.only("404: GET responds with a valid message when topic is not in the database", () => {
+    return request(app)
+      .get("/api/articles?topic=notindatabase")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("this topic does not exist");
+      });
+  });
+
+  test.only("404: GET responds when topic exists in the database, but does not have any articles associated with it", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("no articles for this topic found");
       });
   });
 });

@@ -2,7 +2,7 @@ const db = require("../db/connection");
 
 const { fetchTopicBySlug } = require("./topics_model");
 
-exports.fetchArticles = (topic) => {
+exports.fetchArticles = (topic, sort_by, order) => {
   let queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,  
   COUNT(comments.comment_id)::INT
@@ -16,8 +16,34 @@ exports.fetchArticles = (topic) => {
     queryString += ` WHERE topic = $1`;
     queryParams.push(topic);
   }
+  let orderBy = `created_at`;
+  if (!!sort_by) {
+    if (
+      ![
+        "author",
+        "title",
+        "article_id",
+        "topic",
+        "created_at",
+        "votes",
+        "article_img_url",
+      ].includes(sort_by)
+    ) {
+      return Promise.reject({ status: 400, msg: "Invalid sort_by query" });
+    }
+    orderBy = sort_by;
+  }
+  let orderDirection = `desc`;
+
+  if (!!order) {
+    if (!["asc", "desc"].includes(order)) {
+      return Promise.reject({ status: 400, msg: "Invalid order query" });
+    }
+    orderDirection = order;
+  }
+
   queryString += ` GROUP BY articles.article_id
-      ORDER BY articles.created_at desc`;
+      ORDER BY articles.${orderBy} ${orderDirection}`;
 
   return db.query(queryString, queryParams).then(({ rows }) => {
     if (!!topic && rows.length === 0) {

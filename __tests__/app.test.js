@@ -3,6 +3,7 @@ const request = require("supertest");
 const testData = require("../db/data/test-data");
 const app = require("../app");
 const connection = require("../db/connection");
+const { expect } = require("@jest/globals");
 
 beforeEach(() => seed(testData));
 
@@ -503,13 +504,69 @@ describe("GET /api/articles (queries)", () => {
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body }) => {
-        console.log(body);
         const articles = body.articles;
         const articlesCopy = [...articles];
         const sortedArticles = articlesCopy.sort((articleA, articleB) => {
           return articleB.created_at - articleA.created_at;
         });
         expect(articles).toEqual(sortedArticles);
+      });
+  });
+
+  test("200: accepts a order query", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(7);
+      });
+  });
+  test("400: returns invalid order query", () => {
+    return request(app)
+      .get("/api/articles?order=addsc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Invalid order query");
+      });
+  });
+  test("200: accepts a sort_by query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(12);
+      });
+  });
+  test("400: returns invalid sort_by query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=new_column")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Invalid sort_by query");
+      });
+  });
+  test("200: accepts all queries together", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(1);
+        expect(articles.length).toEqual(11);
+      });
+  });
+  test("200: accepts extra parameters", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&sort_by=article_id&order=asc&extraSuperParam=1"
+      )
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(1);
+        expect(articles.length).toEqual(11);
       });
   });
 });

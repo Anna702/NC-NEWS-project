@@ -91,11 +91,23 @@ describe("/api/articles/:article_id", () => {
             topic: expect.any(String),
             created_at: expect.any(String),
             votes: expect.any(Number),
+            comment_count: expect.any(Number),
             article_img_url: expect.any(String),
           })
         );
       });
   });
+
+  test("200: GET returns the correct number of comments_count", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.article_id).toEqual(3);
+        expect(body.article.comment_count).toEqual(2);
+      });
+  });
+
   test("400: GET invalid article id", () => {
     return request(app)
       .get("/api/articles/invali_article_ID")

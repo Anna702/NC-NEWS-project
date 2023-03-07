@@ -62,12 +62,17 @@ exports.fetchArticles = (topic, sort_by, order) => {
 };
 
 exports.fetchArticleById = (article_id) => {
-  let queryString = `SELECT * FROM articles`;
+  let queryString = `SELECT articles.*,
+  COUNT(comments.comment_id)::INT AS comment_count 
+   FROM articles 
+   LEFT JOIN comments
+   ON articles.article_id=comments.article_id`;
   const queryParams = [];
   if (article_id !== undefined) {
-    queryString += ` WHERE article_id = $1`;
+    queryString += ` WHERE articles.article_id = $1`;
     queryParams.push(article_id);
   }
+  queryString += ` GROUP BY articles.article_id`;
   return db.query(queryString, queryParams).then((result) => {
     const article = result.rows[0];
     if (result.rows.length === 0) {

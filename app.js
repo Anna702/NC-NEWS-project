@@ -12,6 +12,7 @@ const {
 const {
   getCommentsByArticle,
   postComments,
+  deleteComments,
 } = require("./controllers/comments_controller");
 
 const { getUsers } = require("./controllers/users_controller");
@@ -37,6 +38,7 @@ app.post("/api/articles/:article_id/comments", postComments);
 app.patch("/api/articles/:article_id", patchArticleVotes);
 
 app.get("/api/users", getUsers);
+app.delete("/api/comments/:comment_id", deleteComments);
 
 app.all("*", handle404BadPath);
 app.use(handleCustomErrors);

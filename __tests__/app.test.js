@@ -581,4 +581,27 @@ describe("GET /api/articles (queries)", () => {
         expect(articles.length).toEqual(11);
       });
   });
+
+  describe(" DELETE /api/comments/:comment_id", () => {
+    test("204: DELETE the given comment by comment_id and return status 204 and no content", () => {
+      return request(app)
+        .get("/api/articles/9")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.comment_count).toEqual(2);
+          return request(app)
+            .delete("/api/comments/1")
+            .expect(204)
+            .then(({ body }) => {
+              expect(body).toEqual({});
+              return request(app)
+                .get("/api/articles/9")
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.article.comment_count).toEqual(1);
+                });
+            });
+        });
+    });
+  });
 });

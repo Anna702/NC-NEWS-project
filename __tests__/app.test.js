@@ -3,6 +3,7 @@ const request = require("supertest");
 const testData = require("../db/data/test-data");
 const app = require("../app");
 const connection = require("../db/connection");
+const { expect } = require("@jest/globals");
 
 beforeEach(() => seed(testData));
 
@@ -443,6 +444,129 @@ describe("/api/users", () => {
           expect(user).toHaveProperty("name", expect.any(String));
           expect(user).toHaveProperty("avatar_url", expect.any(String));
         });
+      });
+  });
+});
+
+describe("GET /api/articles (queries)", () => {
+  test("200: accepts a topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(11);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("topic", "mitch");
+        });
+      });
+  });
+
+  test("200: GET responds with array of articles objects when accepts a valid topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(1);
+        body.articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+        });
+      });
+  });
+
+  test("404: GET responds with correct message when topic exists in the database, but does not have any articles associated with it", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("no articles for this topic found");
+      });
+  });
+
+  test("404: GET responds when topic does not exists", () => {
+    return request(app)
+      .get("/api/articles?topic=DOESNTEXIST")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("topic with this slug does not exist");
+      });
+  });
+
+  test("200: accepts sort_by query of articles", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        const articlesCopy = [...articles];
+        const sortedArticles = articlesCopy.sort((articleA, articleB) => {
+          return articleB.created_at - articleA.created_at;
+        });
+        expect(articles).toEqual(sortedArticles);
+      });
+  });
+
+  test("200: accepts a order query", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(7);
+      });
+  });
+  test("400: returns invalid order query", () => {
+    return request(app)
+      .get("/api/articles?order=addsc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Invalid order query");
+      });
+  });
+  test("200: accepts a sort_by query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(12);
+      });
+  });
+  test("400: returns invalid sort_by query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=new_column")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Invalid sort_by query");
+      });
+  });
+  test("200: accepts all queries together", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(1);
+        expect(articles.length).toEqual(11);
+      });
+  });
+  test("200: accepts extra parameters", () => {
+    return request(app)
+      .get(
+        "/api/articles?topic=mitch&sort_by=article_id&order=asc&extraSuperParam=1"
+      )
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles[0].article_id).toEqual(1);
+        expect(articles.length).toEqual(11);
       });
   });
 });

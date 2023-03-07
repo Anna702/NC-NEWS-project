@@ -17,7 +17,10 @@ exports.handleCustomErrors = (err, req, res, next) => {
       case "comments_author_fkey":
         res.status(404).send({ msg: "Bad request: this user does not exist" });
     }
+    next(err);
   } else {
+    // unhandled error
+    console.log(err);
     next(err);
   }
 };

@@ -1,22 +1,64 @@
 const db = require("../db/connection");
 
-exports.fetchArticles = () => {
-  return db
-    .query(
-      `
-          SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,  
-          COUNT(comments.comment_id)::INT
-          AS comment_count 
-          FROM articles
-          LEFT JOIN comments
-          ON articles.article_id=comments.article_id
-          GROUP BY articles.article_id
-          ORDER BY articles.created_at desc;
-      `
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+const { fetchTopicBySlug } = require("./topics_model");
+
+exports.fetchArticles = (topic, sort_by, order) => {
+  let queryString = `
+  SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,  
+  COUNT(comments.comment_id)::INT
+  AS comment_count 
+  FROM articles
+  LEFT JOIN comments
+  ON articles.article_id=comments.article_id
+  `;
+  const queryParams = [];
+  if (topic !== undefined) {
+    queryString += ` WHERE topic = $1`;
+    queryParams.push(topic);
+  }
+  let orderBy = `created_at`;
+  if (!!sort_by) {
+    if (
+      ![
+        "author",
+        "title",
+        "article_id",
+        "topic",
+        "created_at",
+        "votes",
+        "article_img_url",
+      ].includes(sort_by)
+    ) {
+      return Promise.reject({ status: 400, msg: "Invalid sort_by query" });
+    }
+    orderBy = sort_by;
+  }
+  let orderDirection = `desc`;
+
+  if (!!order) {
+    if (!["asc", "desc"].includes(order)) {
+      return Promise.reject({ status: 400, msg: "Invalid order query" });
+    }
+    orderDirection = order;
+  }
+
+  queryString += ` GROUP BY articles.article_id
+      ORDER BY articles.${orderBy} ${orderDirection}`;
+
+  return db.query(queryString, queryParams).then(({ rows }) => {
+    if (!!topic && rows.length === 0) {
+      // no results has been found for a given topic.
+      // check if such topic exists at all
+      return fetchTopicBySlug(topic).then(() => {
+        return Promise.reject({
+          status: 404,
+          msg: "no articles for this topic found",
+        });
+      });
+    }
+
+    return rows;
+  });
 };
 
 exports.fetchArticleById = (article_id) => {

@@ -21,6 +21,10 @@ exports.fetchCommentsByArticle = (article_id) => {
   });
 };
 
+exports.deleteCommentById = (comment_id) => {
+  return db.query("DELETE FROM comments WHERE comment_id = $1", [comment_id]);
+};
+
 exports.addComments = (article_id, newComment) => {
   const { username, body } = newComment;
 

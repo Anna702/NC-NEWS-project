@@ -582,7 +582,7 @@ describe("GET /api/articles (queries)", () => {
       });
   });
 
-  describe(" DELETE /api/comments/:comment_id", () => {
+  describe("DELETE /api/comments/:comment_id", () => {
     test("204: DELETE the given comment by comment_id and return status 204 and no content", () => {
       return request(app)
         .get("/api/articles/9")

@@ -42,8 +42,11 @@ app.post("/api/articles/:article_id/comments", postComments);
 app.patch("/api/articles/:article_id", patchArticleVotes);
 
 app.get("/api/users", getUsers);
+
 app.delete("/api/comments/:comment_id", deleteComments);
+
 app.get("/api", getEndpoints);
+
 app.all("*", handle404BadPath);
 app.use(handleCustomErrors);
 app.use(handle500Error);

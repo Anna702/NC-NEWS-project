@@ -2,6 +2,7 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api"
   },
+
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
@@ -79,16 +80,65 @@
   },
 
   "PATCH /api/articles/:article_id/comments": {
-    "description": "responds with the posted comment for the article given",
+    "description": "responds with the updated article",
     "queries": [],
     "exampleResponse": [
       {
-        "body": "I hate streaming eyes even more",
-        "votes": 0,
-        "author": "icellusedkars",
         "article_id": 1,
-        "created_at": 1586642520000
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "votes": 101
       }
     ]
+  },
+
+  "GET /api/users": {
+    "description": "responds with an array of users",
+    "queries": [],
+    "exampleResponse": [
+      {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
+    ]
+  },
+
+  "POST: /api/articles/:article_id/comments": {
+    "description": "responds with the posted comment",
+    "exampleResponse": [
+      {
+        "comment_id": 1,
+        "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        "votes": 16,
+        "author": "butter_bridge",
+        "article_id": 9,
+        "created_at": 1586179020000
+      }
+    ]
+  },
+
+  "PATCH: /api/articles/:article_id": {
+    "description": "responds with the updated article",
+    "exampleResponse": [
+      {
+        "article_id": 1,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "votes": 101
+      }
+    ]
+  },
+
+  "DELETE /api/comments/:comment_id": {
+    "description": "responds with status 204 and no content"
   }
 }

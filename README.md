@@ -1,4 +1,5 @@
-# Northcoders News API
+# Northcoders News API (Back-end project)
+
 
 ## Background
 
